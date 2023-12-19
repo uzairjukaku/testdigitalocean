@@ -11,7 +11,7 @@ res.send('get method')
 app.get('/github',(req,res)=>{
 
 
-    res.send('get method')
+    res.json({"user":"uzair"})
     });
 
 app.listen(process.env.PORT, () => {
