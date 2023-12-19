@@ -7,7 +7,12 @@ app.get('/',(req,res)=>{
 
 
 res.send('get method')
-})
+});
+app.get('/github',(req,res)=>{
+
+
+    res.send('get method')
+    });
 
 app.listen(process.env.PORT, () => {
 
