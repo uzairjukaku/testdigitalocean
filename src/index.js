@@ -1,22 +1,30 @@
-const express = require('express');
-const app = express();
-const port = 3000;
+
+import { app } from "./app.js";
+import connectDb from "./db/index.js";
+
+connectDb().then(
 
 
-app.get('/',(req,res)=>{
+()=>{
+
+app.listen(process.env.PORT || 8000,()=>{
 
 
-res.send('get method')
-});
-app.get('/github',(req,res)=>{
-
-
-    res.json({"user":"uzair"})
-    });
-
-app.listen(process.env.PORT, () => {
-
-
-    console.log('server is running on port ' + port);
+console.log('server running on port number'+process.env.PORT || 8000);
 
 })
+
+
+}
+
+
+
+).catch(
+
+(error)=>{
+
+
+    console.log('error connecting to the database')
+}
+
+);
