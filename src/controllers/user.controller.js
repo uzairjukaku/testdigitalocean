@@ -5,6 +5,27 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 
 import { uploadOnCloudinary } from "../utils/coundinary.js";
 
+const generateAccessAndRefreshTOken = async (userId) => {
+  const user = await User.findOne(userId);
+
+  const accesstoken = user.generateAccessToken();
+  const refreshToken = user.generateRefreshToken();
+
+  user.refreshToken = refreshToken;
+
+  await user.save({ validateBeforeSave: false });
+
+  return { accesstoken, refreshToken };
+
+  try {
+  } catch (error) {
+    throw new ApiError(
+      400,
+      "something went worong while generating access and refresh token"
+    );
+  }
+};
+
 const registerUser = asyncHandler(async (req, res) => {
   const { email, username, fullName, password } = req.body;
 
@@ -56,4 +77,49 @@ const registerUser = asyncHandler(async (req, res) => {
   return res.status(201).json(new ApiResponse(201, createdUser));
 });
 
-export { registerUser };
+const loginUser = asyncHandler(async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email) {
+    throw new ApiError(400, "Email is required");
+  }
+
+  const existedUser = await User.findOne({ email });
+
+  if (!existedUser) {
+    throw new ApiError(400, "User not exist.please register");
+  }
+
+  const isPasswordValid = await existedUser.isPasswordCorrect(password);
+
+  if (!isPasswordValid) {
+    throw new ApiError(400, "Worng password");
+  }
+
+  const { accesstoken, refreshToken } = await generateAccessAndRefreshTOken(
+    user._id
+  );
+
+  const loginUser = await User.findOne(user._id).select(
+    "-password -refreshToken"
+  );
+
+  const options = {
+    httpOnly: true,
+    secure: true,
+  };
+
+  return res
+    .status(200)
+    .cookie("accessToken", accesstoken, options)
+    .cookie("refreshToken", refreshToken, options)
+    .json(
+      new ApiResponse(200, {
+        user: loginUser,
+        refreshToken,
+        accesstoken,
+      },"user login successfully")
+    );
+});
+
+export { registerUser, loginUser };
