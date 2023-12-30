@@ -20,25 +20,25 @@ const userSchema = new Schema(
       lowecase: true,
       trim: true,
     },
-    fullName: {
+    firstName: {
       type: String,
       required: true,
       trim: true,
-      index: true,
     },
-    avatar: {
-      type: String, // cloudinary url
+    lastName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    mobile: {
+      type: Number,
       required: true,
     },
-    coverImage: {
+    role: {
       type: String, // cloudinary url
+      emum: ["admin", "normaluser"],
     },
-    watchHistory: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "Video",
-      },
-    ],
+
     password: {
       type: String,
       required: [true, "Password is required"],
@@ -64,7 +64,7 @@ userSchema.methods.isPasswordCorrect = async function (password) {
 };
 
 userSchema.methods.generateAccessToken = async function () {
- return jwt.sign(
+  return jwt.sign(
     {
       _id: this._id,
       email: this.email,
@@ -76,7 +76,7 @@ userSchema.methods.generateAccessToken = async function () {
       expiresIn: process.env.ACCESS_TOKEN_EXPIRY,
     }
   );
-};  
+};
 userSchema.methods.generateRefreshToken = async function () {
   return jwt.sign(
     {
